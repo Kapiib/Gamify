@@ -1,6 +1,8 @@
 const User = require("../models/UserSchema.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const createJwt = require("../utils/createJwt.js")
+const createCookie = require("../utils/createCookie.js")
 
 const saltRounds = parseInt(process.env.SALTROUNDS);    
 
@@ -15,8 +17,6 @@ const authController = {
         if(!user) {
             return res.status(404).send({msg: "User not found"});
         }
-        
-
 
         console.log(user);
         let hashedPassword = user.password;
@@ -25,11 +25,13 @@ const authController = {
 
         if(isPassword) {
             let role = "user";
-            const jwToken = jwt.sign({email, role}, process.env.SUPERSECRETJWT);
-    
-            res.cookie(jwToken, { 
-                httpOnly: true,
-                maxAge: '5d',
+            
+            const jwtToken = createJwt(email, role);
+            createCookie(res, jwtToken);
+            
+            res.cookie("jwt", jwtToken, { 
+                httpOnly: true, 
+                maxAge: 5 * 60 * 1000,
                 secure: process.env.NODE_ENV === "production"
             });
 
@@ -39,9 +41,19 @@ const authController = {
         };
 
     }),
-    register: ((req, res) => {
+    register: (async (req, res) => {
         // res.send("Created")
         const {email, password, repeatPassword} = req.body;
+
+        const role = "user";   
+
+        try {
+            const exisitngUser = await user.findOne({email:email});
+                if(existingUser) {
+            }
+        } catch (error) {
+            return res.status(409).send({msg: "Email aleready in use"});
+        }
 
         if(password === repeatPassword) {
             bcrypt.hash(password, saltRounds, function(err, hash) {
@@ -50,7 +62,8 @@ const authController = {
 
                 const user = new User({
                     email: email,
-                    password: hash
+                    password: hash,
+                    role: role
                 });
                 console.log(user);
                 user.save();
