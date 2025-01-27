@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-function createCookie(res, jwtToken) {
+async function createCookie(res, jwtToken) {
      res.cookie("jwt", jwtToken, { 
         httpOnly: true, 
         maxAge: 5 * 60 * 1000,

@@ -8,9 +8,9 @@ const saltRounds = parseInt(process.env.SALTROUNDS);
 
 const authController = {
     login: (async (req, res) => {
-        // res.send("login")
 
-        const { email, password} = req.body;
+        try {
+            const { email, password} = req.body;
 
         const user = await User.findOne({email: email});
 
@@ -27,7 +27,7 @@ const authController = {
             let role = "user";
             
             const jwtToken = createJwt(email, role);
-            createCookie(res, jwtToken);
+            await createCookie(res, jwtToken);
             
             res.cookie("jwt", jwtToken, { 
                 httpOnly: true, 
@@ -39,10 +39,13 @@ const authController = {
         } else {
             res.status(404).send({msg: "User not found"})
         };
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({msg: "internal server error"});
+        };
 
     }),
     register: (async (req, res) => {
-        // res.send("Created")
         const {email, password, repeatPassword} = req.body;
 
         const role = "user";   
@@ -56,7 +59,7 @@ const authController = {
         }
 
         if(password === repeatPassword) {
-            bcrypt.hash(password, saltRounds, function(err, hash) {
+            bcrypt.hash(password, saltRounds, async function(err, hash) {
 
                 if(err) console.log(err, "error");
 

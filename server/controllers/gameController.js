@@ -3,46 +3,62 @@ const Game = require("../models/gamesSchema.js")
 const gameController = {
     getAllGames: (async (req, res) => {
 
-        const games = await Game.find();
+        try {
+            const games = await Game.find();
 
-        if(games.length > 0) {
-            res.status(200).send({msg: "Games found", games:games})
-        } else {
-            res.status(404).send({msg: "No games found"})
-        }
+            if(games.length > 0) {
+                res.status(200).send({msg: "Games found", games:games})
+            } else {
+                res.status(404).send({msg: "No games found"})
+            };
+        } catch (error) {
+            consle.log(error);
+            res.status(500).send({msg: "internal server error"});
+        };
 
     }),
     createGame: (async (req, res) => {
         const {title, price, publisher, developer, releaseDate, status, description, shortDescription} = req.body;
 
-        const game = new Game({
-            title,
-            price, 
-            publisher, 
-            developer, 
-            releaseDate, 
-            status, 
-            description, 
-            shortDescription
-        }) 
-
-        let result = await game.save();
-        console.log(result);
-
-        if(result.id) {
-            res.status(201).send({msg: "Game created successfully"});
-        } else {
-            res.status(400).send({msg: "Error creating game"})
-        }
+        try {
+            const game = new Game({
+                title,
+                price, 
+                publisher, 
+                developer, 
+                releaseDate, 
+                status, 
+                description, 
+                shortDescription
+            }) 
+    
+            let result = await game.save();
+            console.log(result);
+    
+            if(result.id) {
+                res.status(201).send({msg: "Game created successfully"});
+            } else {
+                res.status(400).send({msg: "Error creating game"})
+            };
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({msg: "internal server error"});
+        };
+        
     }),
     getGame: (async (req, res) => {
         const { id } = req.params;
 
-        const game = await Game.findById(id);
+        try {
+            const game = await Game.findById(id);
 
-        console.log(game);
+            console.log(game);
 
-        res.status(200).send({msg: "Game found", game:game});
+            res.status(200).send({msg: "Game found", game:game});
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({msg: "internal server error"});
+        };
 
     }),
     editGame: (async (req, res) => {
@@ -62,9 +78,14 @@ const gameController = {
     deleteGame: (async (req, res) => {
         const { id } = req.params;
 
-        const game = await Game.findByIdAndDelete(id);
+        try {
+            const game = await Game.findByIdAndDelete(id);
 
-        res.status(200).send({msg: "Game deleted"});
+            res.status(200).send({msg: "Game deleted"});
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({msg: "internal server error"});
+        };
 
     }),
 };
