@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes.js");
 const gameRoutes = require("./routes/gameRoutes.js");
@@ -13,6 +14,15 @@ const app = express();
 mongoose.connect(process.env.DB_URL);
 
 app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+
+let corsOptions = {
+    origin: "http://localhost:3000",
+    methods: "GET,PUT,POST,DELETE",
+    credentials: true,
+}
+app.use(cors(corsOptions));
+
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);

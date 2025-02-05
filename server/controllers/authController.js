@@ -8,15 +8,12 @@ const saltRounds = parseInt(process.env.SALTROUNDS);
 
 const authController = {
     login: (async (req, res) => {
+        const { email, password} = req.body;
+
+        console.log(req.body, "LOGIN")
 
         try {
-            const { email, password} = req.body;
-
         const user = await User.findOne({email: email});
-
-        if(!user) {
-            return res.status(404).send({msg: "User not found"});
-        }
 
         console.log(user);
         let hashedPassword = user.password;
@@ -26,14 +23,8 @@ const authController = {
         if(isPassword) {
             let role = "user";
             
-            const jwtToken = createJwt(email, role);
+            const jwtToken = await createJwt(email, role);
             await createCookie(res, jwtToken);
-            
-            res.cookie("jwt", jwtToken, { 
-                httpOnly: true, 
-                maxAge: 5 * 60 * 1000,
-                secure: process.env.NODE_ENV === "production"
-            });
 
             res.status(202).send({msg: "User found!", user:user});
         } else {
@@ -48,35 +39,59 @@ const authController = {
     register: (async (req, res) => {
         const {email, password, repeatPassword} = req.body;
 
-        const role = "user";   
-
         try {
-            const exisitngUser = await user.findOne({email:email});
-                if(existingUser) {
+            const role = "user";   
+
+            if (!email) {
+                return res.status(400).send({msg: "Email is required"});
+            }
+
+            if(password === repeatPassword) {
+                console.log("Repeat password test")
+                bcrypt.hash(password, saltRounds, async function(err, hash) {
+
+                    if(err) console.log(err, "error");
+
+                    const user = new User({
+                        email: email,
+                        password: hash,
+                        role: role
+                    });
+                    console.log(user);
+                    user.save();
+                    res.status(201).send({msg: "Succesfully signed up", user:user});
+
+                })
+            } else {
+                res.status(300).send({msg: "Please check your signup"})
             }
         } catch (error) {
-            return res.status(409).send({msg: "Email aleready in use"});
+            console.log(error);
+            res.status(500).send({msg: "internal server error"});
         }
-
-        if(password === repeatPassword) {
-            bcrypt.hash(password, saltRounds, async function(err, hash) {
-
-                if(err) console.log(err, "error");
-
-                const user = new User({
-                    email: email,
-                    password: hash,
-                    role: role
-                });
-                console.log(user);
-                user.save();
-                res.status(201).send({msg: "Succesfully signed up", user:user, redirect: '/login'});
-
-            })
-        } else {
-            res.status(300).send({msg: "Please check your signup"})
+    }),
+    user: async (req, res) => {
+        console.log(req.user, "USER");
+        
+        if (!req.user || !req.user.email) {
+            return res.status(401).send({ msg: "User not authenticated" });
         }
-    })
+        
+        let email = req.user.email;
+        
+        try {
+            const user = await User.findOne({ email });
+    
+            if (user) {
+                res.status(200).send({ msg: "User found", user: user });
+            } else {
+                res.status(404).send({ msg: "User not found" });
+            }
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({ msg: "Internal server error", error: error });
+        }
+    }
 };
 
 module.exports = authController;
