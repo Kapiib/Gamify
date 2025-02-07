@@ -17,7 +17,7 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 let corsOptions = {
-    origin: "process.env.CORS_ORIGIN",
+    origin: process.env.CORS_ORIGIN,
     methods: "GET,PUT,POST,DELETE",
     credentials: true,
 }
