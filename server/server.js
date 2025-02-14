@@ -15,10 +15,10 @@ mongoose.connect(process.env.DB_URL);
 
 app.use(express.urlencoded({extended: true}));
 app.use(express.json());
-
+console.log(process.env.CORS_ORIGIN, "ORIGIN");
 let corsOptions = {
-    origin: process.env.CORS_ORIGIN,
-    methods: "GET,PUT,POST,DELETE",
+    origin: process.env.CORS_ORIGIN || "http://10.12.52.82",
+    methods: ["GET,PUT,POST,DELETE"],
     credentials: true,
 }
 app.use(cors(corsOptions));
