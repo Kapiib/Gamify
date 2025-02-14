@@ -6,6 +6,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
+import CreateGame from './pages/CreateGame';
+import GamesPage from './pages/GamesPage';
+import GamePage from './pages/GamePage';
 
 function App() {
   return (
@@ -15,6 +18,9 @@ function App() {
         <Route path='/login' element={<Login/>}></Route>
         <Route path='/register' element={<Register/>}></Route>
         <Route path='/profile' element={<Profile/>}></Route>
+        <Route path='/create game' element={<CreateGame/>}></Route>
+        <Route path='/games' element={<GamesPage/>}></Route>
+        <Route path='/games/:id' element={<GamePage/>}></Route>
 
 
         <Route path='*' element={<NotFound/>}></Route>

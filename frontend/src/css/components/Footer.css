@@ -2,7 +2,7 @@
     display: flex;
     width: 100%;
     justify-content: space-evenly;
-    position: absolute;
+    position: relative;
     bottom: 0;
 }
 

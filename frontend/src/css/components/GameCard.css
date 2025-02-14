@@ -1,0 +1,16 @@
+.gameCard {
+    border: 1px solid var(--color-black)
+}
+
+.games {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.gameForm {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
